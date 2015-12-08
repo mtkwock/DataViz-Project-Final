@@ -1,9 +1,8 @@
-"evenAs": {
+evenAs =  {
     "tape": {
         "alphabet": [">", " ", "a"],
         "blank": " ",
-        "head": ">",
-
+        "head": ">"
     },
     "states": {
         "start": {

@@ -7,6 +7,7 @@
  * Its properties should be changed via API, but can be configured by a JSON file
  */
 function TuringMachine(config){
+    config = config || {};
     this.tape = config.tape || {
         alphabet: [">", " "],
         head: ">",
@@ -24,8 +25,20 @@ function TuringMachine(config){
 TuringMachine.prototype = {
     // stringify this Turing Machine to save as JSON
     stringify: function() {
-        console.error("Magic not implemented");
+        var obj = {
+            tape: this.tape,
+            states: this.states
+        };
+        return JSON.stringify(obj);
     },
+
+    // Convert his Turing Machine to one defined by the loadstring
+    load: function(configString){
+        var obj = JSON.parse(configString);
+        this.tape = obj.tape;
+        this.states = obj.states;
+    },
+
     // returns true if specified state currently exists
     checkState: function(state){
         if(this.states[state]){
@@ -35,6 +48,7 @@ TuringMachine.prototype = {
         console.log("NOT a state: " + state);
         return false;
     },
+
     // return true if specified string is a valid alphabet member
     checkAlphabet: function(string){
         if(this.alphabet.indexOf(string) >= 0){
@@ -44,6 +58,7 @@ TuringMachine.prototype = {
         console.log("NOT in alphabet: " + string);
         return false;
     },
+
     // Returns true if specified delta exists
     checkDelta: function(state, read, idx){
         if(checkState(state)){
@@ -61,6 +76,7 @@ TuringMachine.prototype = {
         console.log("NOT a delta state: " + state)
         return false;
     },
+
     // Add/Edit/Delete functionality for states
     addState: function(name){
         if(this.checkState(name)){
@@ -117,6 +133,7 @@ TuringMachine.prototype = {
     deleteDelta: function(state, read, deltaIdx){
         console.error("Magic not implemented");
     },
+
     addAlphabet: function(string){
         console.error("Magic not implemented");
     },
@@ -137,9 +154,9 @@ TuringMachine.prototype = {
 }
 
 /*
- * Am Execution is made with a Turing Machine.
- * It is capable of following more than one thread
- * It is, however, initialized with only one thread.
+ * An Execution is made with a Turing Machine.
+ * It is capable of following more than one thread with nondeterminism
+ * It is, however, initialized with only one thread and requires a start state of "start"
  * Pausing and Restarting capabilities may be implemented later
  */
 function Execution(tm){
@@ -155,9 +172,14 @@ function Execution(tm){
 
 Execution.prototype = {
     // Saves current execution to be loaded for later
+    // TODO: Determine if the Turing Machine used for this execution should be returned as well!
     stringify: function(){
-        console.error("Magic not implemented");
-    }
+        return JSON.stringify(this.threads, null, 4);
+    },
+
+    load: function(executionSave){
+        this.threads = JSON.parse(executionSave);
+    },
 
     // Advances each thread by one delta
     advance: function(){
@@ -168,13 +190,13 @@ Execution.prototype = {
                 return;
             }
             // Pointer went too far to the left.  Segfault
-            if(pointer < 0){
+            if(thread.pointer < 0){
                 thread.active = "reject";
                 return;
             }
 
             var deltas = self.machine.states[thread.active]
-                .delta[thread.tape[pointer]];
+                .delta[thread.tape[thread.pointer]];
             if(!deltas || deltas.length < 1){ // No delta found.  Is now rejecting
                 thread.active = "reject";
                 return;
@@ -187,17 +209,17 @@ Execution.prototype = {
                 delta = deltas[i];
                 var newTape = thread.tape.slice(); // Copy current tape
                 newTape[pointer] = delta.write; // Edit tape with new write
-                self.addThread(delta.to, newTape, pointer + delta.move); // Append thread to execute
+                self.addThread(delta.to, newTape, thread.pointer + delta.move); // Append thread to execute
             }
 
             // Edit current thread
             delta = deltas[0]
             thread.active = delta.to;
-            thread.tape[pointer] = delta.write;
+            thread.tape[thread.pointer] = delta.write;
             thread.pointer += delta.move
 
             // Pushes blanks until pointer is on a valid space
-            while(thread.tape.length <= pointer){
+            while(thread.tape.length <= thread.pointer){
                 thread.tape.push(self.machine.tape.blank);
             }
         });
@@ -209,6 +231,13 @@ Execution.prototype = {
             "tape": tape,
             "pointer": pointer
         });
+    },
+    deleteThread: function(threadIdx){
+        if(threadIdx < this.threads.length){
+            this.threads.pop(threadIdx);
+            return true;
+        }
+        return false;
     },
     // To be used for setting up tape when executing
     editTape: function(threadNum, idx, val){
