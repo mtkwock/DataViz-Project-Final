@@ -1,6 +1,10 @@
+/* @author Mitchell Kwock and Julian Morris
+ * Library for TM simulation to be used in DataViz Final Project
+ */
+
 /*
- * A Turing Machine is static and does not change
- * Its properties should never change once made
+ * A Turing Machine is static and does not change once executed
+ * Its properties should be changed via API, but can be configured by a JSON file
  */
 function TuringMachine(config){
     this.tape = config.tape || {
@@ -8,31 +12,58 @@ function TuringMachine(config){
         head: ">",
         blank: " ",
     };
-    this.states = config.states || {
-        "start": {
-            "delta": {
+    this.states = config.states || {};
 
-            },
-            "x": -1,
-            "y": -1,
-        },
-        "final": {
-            "delta": {
-
-            },
-            "x": 101,
-            "y": 101
-        }
-    };
+    // Ensures major states exist
+    this.states.start = this.states.start || { "delta": {}, "x": 0, "y": 0 };
+    this.states.accept = this.states.accept || { "delta": {}, "x": 50, "y": 0 };
+    this.states.reject = this.states.reject || { "delta": {}, "x": 0, "y": 50 };
 }
 
+// Has check/add/edit/delete functionality for alphabet, states, and deltas
 TuringMachine.prototype = {
-    print: function() {
-
+    // stringify this Turing Machine to save as JSON
+    stringify: function() {
+        console.error("Magic not implemented");
     },
+    // returns true if specified state currently exists
+    checkState: function(state){
+        if(this.states[state]){
+            console.log("Is a state: " + state);
+            return true;
+        }
+        console.log("NOT a state: " + state);
+        return false;
+    },
+    // return true if specified string is a valid alphabet member
+    checkAlphabet: function(string){
+        if(this.alphabet.indexOf(string) >= 0){
+            console.log("In the alphabet: " + string);
+            return true;
+        }
+        console.log("NOT in alphabet: " + string);
+        return false;
+    },
+    // Returns true if specified delta exists
+    checkDelta: function(state, read, idx){
+        if(checkState(state)){
+            if(this.states[read]){
+                if(this.state[read].length > idx){
+                    console.log("Is a delta");
+                    return true;
+                }
+                console.log("NOT a delta idx: " + idx);
+                return false;
+            }
+            console.log("NOT a delta read: " + read)
+            return false;
+        }
+        console.log("NOT a delta state: " + state)
+        return false;
+    },
+    // Add/Edit/Delete functionality for states
     addState: function(name){
-        if(this.states[name]){
-            console.error("State already exists");
+        if(this.checkState(name)){
             return false;
         }
         var state = {
@@ -43,9 +74,10 @@ TuringMachine.prototype = {
         this.states[name] = state;
         return true;
     },
-    moveState: function(state, x, y){
-        if(!this.states[state]){
-            console.error("State doesn't exist");
+    //TODO: Allow color functionality to define state information
+    editState: function(state, x, y){
+        if(!this.checkState(state)){
+            console.error("editState failed");
             return false;
         }
         this.states[name].x = x;
@@ -53,27 +85,22 @@ TuringMachine.prototype = {
         return true;
     },
     deleteState: function(state){
-        if(!this.states[state]){
-            console.error("State doesn't exist");
+        if(!this.checkState(state)){
+            console.log("deleteState failed");
             return false;
         }
-        delete states[state];
+        if(state === "start" || state === "accept" || state === "reject"){
+            console.error("Cannot delete critical state: " + state)
+            return false;
+        }
+        return delete states[state];
     },
+
+    // Add, edit, delete functionality for deltas
     addDelta: function(state, read, to, write, move){
-        if(!this.states[state]){
-            console.error("State does not exist: " + state);
-            return false;
-        }
-        if(this.alphabet.indexOf(read) < 0){
-            console.error("Not in Turing Machine Alphabet: " + read);
-            return false;
-        }
-        if(!this.states[to]){
-            console.error("State does not exist: " + to);
-            return false;
-        }
-        if(this.alphabet.indexOf(write) < 0){
-            console.error("Not in Turing Machine Alphabet: " + write);
+        if(!this.checkState(state) || !this.checkState(to) ||
+            !this.checkAlphabet(read) || !this.checkAlphabet(write)){
+            console.log("addDelta failed");
             return false;
         }
         this.states[state].delta[read].push({
@@ -82,6 +109,30 @@ TuringMachine.prototype = {
             "write": write
         });
         return true;
+    },
+    // Modifies an already existing delta
+    editDelta: function(state, read, deltaIdx, to, write, move){
+        console.error("Magic not implemented");
+    },
+    deleteDelta: function(state, read, deltaIdx){
+        console.error("Magic not implemented");
+    },
+    addAlphabet: function(string){
+        console.error("Magic not implemented");
+    },
+    // Not sure if this is necessary
+    // Perhaps if this allows modification of tape.head and tape.blank
+    editAlphabet: function(string){
+        console.error("Magic not implemented");
+    },
+    editTapeHead: function(string){
+        console.error("Magic not implemented");
+    },
+    editTapeBlank: function(string){
+        console.error("Magic not implemented");
+    },
+    deleteAlphabet: function(string){
+        console.error("Magic not implemented");
     }
 }
 
@@ -154,7 +205,8 @@ Execution.prototype = {
             "pointer": pointer
         });
     },
-    editTapeSection: function(threadNum, idx, val){
+    // To be used for setting up tape when executing
+    editTape: function(threadNum, idx, val){
         if(idx < 1){
             console.error("Index < 1: " + idx)
             return false;
@@ -174,7 +226,7 @@ Execution.prototype = {
         tape[idx] = val;
         return true;
     },
-    get: function(){
+    getThreads: function(){
         return this.threads;
     }
 }
