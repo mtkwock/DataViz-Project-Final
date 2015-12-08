@@ -154,6 +154,11 @@ function Execution(tm){
 }
 
 Execution.prototype = {
+    // Saves current execution to be loaded for later
+    stringify: function(){
+        console.error("Magic not implemented");
+    }
+
     // Advances each thread by one delta
     advance: function(){
         var self = this;
