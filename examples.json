@@ -1,0 +1,61 @@
+"evenAs": {
+    "tape": {
+        "alphabet": [">", " ", "a"],
+        "blank": " ",
+        "head": ">",
+
+    },
+    "states": {
+        "start": {
+            "delta": {
+                ">": [{
+                    "move": 1,
+                    "to": "evens",
+                    "write": ">"
+                }],
+            },
+            "x": 0,
+            "y": 0
+        },
+        "accept": {
+            "delta": {},
+            "x": 50,
+            "y": 0
+        },
+        "reject": {
+            "delta": {},
+            "x": 50,
+            "y": 50
+        },
+        "evens": {
+            "delta": {
+                " ": [{
+                    "move": 0,
+                    "to": "accept",
+                    "write": " "
+                }],
+                "a": [{
+                    "move": 1,
+                    "to": "odds",
+                    "write": "a"
+                }]
+            },
+            "x": 0,
+            "y": 50
+        },
+        "odds": {
+            "delta": {
+                " ": [{
+                    "move": 0,
+                    "to": "reject",
+                    "write": " "
+                }],
+                "a": [{
+                    "move": 1,
+                    "to": "evens",
+                    "write": "a"
+                }]
+            }
+        }
+    }
+}
