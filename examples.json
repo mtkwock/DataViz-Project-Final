@@ -1,60 +1,76 @@
-evenAs =  {
+evenAs = {
     "tape": {
-        "alphabet": [">", " ", "a"],
+        "alphabet": [
+            ">",
+            " ",
+            "a"
+        ],
         "blank": " ",
         "head": ">"
     },
     "states": {
         "start": {
             "delta": {
-                ">": [{
-                    "move": 1,
-                    "to": "evens",
-                    "write": ">"
-                }],
+                ">": [
+                    {
+                        "move": 1,
+                        "to": "evens",
+                        "write": ">"
+                    }
+                ]
             },
-            "x": 0,
-            "y": 0
+            "x": 51,
+            "y": 63
         },
         "accept": {
             "delta": {},
-            "x": 50,
-            "y": 0
+            "x": 472,
+            "y": 62
         },
         "reject": {
             "delta": {},
-            "x": 50,
-            "y": 50
+            "x": 475,
+            "y": 252
         },
         "evens": {
             "delta": {
-                " ": [{
-                    "move": 0,
-                    "to": "accept",
-                    "write": " "
-                }],
-                "a": [{
-                    "move": 1,
-                    "to": "odds",
-                    "write": "a"
-                }]
+                " ": [
+                    {
+                        "move": 0,
+                        "to": "accept",
+                        "write": " "
+                    }
+                ],
+                "a": [
+                    {
+                        "move": 1,
+                        "to": "odds",
+                        "write": "a"
+                    }
+                ]
             },
-            "x": 0,
-            "y": 50
+            "x": 252,
+            "y": 67
         },
         "odds": {
             "delta": {
-                " ": [{
-                    "move": 0,
-                    "to": "reject",
-                    "write": " "
-                }],
-                "a": [{
-                    "move": 1,
-                    "to": "evens",
-                    "write": "a"
-                }]
-            }
+                " ": [
+                    {
+                        "move": 0,
+                        "to": "reject",
+                        "write": " "
+                    }
+                ],
+                "a": [
+                    {
+                        "move": 1,
+                        "to": "evens",
+                        "write": "a"
+                    }
+                ]
+            },
+            "x": 254,
+            "y": 256
         }
     }
 }

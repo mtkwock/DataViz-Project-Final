@@ -29,7 +29,7 @@ TuringMachine.prototype = {
             tape: this.tape,
             states: this.states
         };
-        return JSON.stringify(obj);
+        return JSON.stringify(obj, null, 4);
     },
 
     // Convert his Turing Machine to one defined by the loadstring
@@ -77,7 +77,17 @@ TuringMachine.prototype = {
         return false;
     },
 
-    // Add/Edit/Delete functionality for states
+    // Get/Add/Edit/Delete functionality for states
+    getStates: function(){
+        var self = this;
+        return Object.getOwnPropertyNames(this.states).map(function(stateName){
+            return {
+                name: stateName,
+                x: self.states[stateName].x,
+                y: self.states[stateName].y
+            };
+        });
+    },
     addState: function(name){
         if(this.checkState(name)){
             return false;
@@ -96,8 +106,8 @@ TuringMachine.prototype = {
             console.error("editState failed");
             return false;
         }
-        this.states[name].x = x;
-        this.states[name].y = y;
+        this.states[state].x = x;
+        this.states[state].y = y;
         return true;
     },
     deleteState: function(state){
@@ -113,6 +123,17 @@ TuringMachine.prototype = {
     },
 
     // Add, edit, delete functionality for deltas
+    getDeltas: function(){
+        var self = this;
+        return Object.getOwnPropertyNames(self.states).reduce(function(acc, name){
+            var delta = self.states[name].delta;
+            return acc.concat(Object.getOwnPropertyNames(delta).reduce(function(ac2, read){
+                return ac2.concat(delta[read].map(function(d, idx){
+                    return { "from": name, "to": d.to, "idx": idx, "read": read, "write": d.write, "move": d.move };
+                }));
+            }, []));
+        }, []);
+    },
     addDelta: function(state, read, to, write, move){
         if(!this.checkState(state) || !this.checkState(to) ||
             !this.checkAlphabet(read) || !this.checkAlphabet(write)){
@@ -262,5 +283,13 @@ Execution.prototype = {
     },
     getThreads: function(){
         return this.threads;
+    },
+    getActives: function(){
+        return this.threads.map(function(thread){
+            return {
+                state: thread.active,
+                color: "rgba(255, 0, 0, 1)"
+            }
+        })
     }
 }
