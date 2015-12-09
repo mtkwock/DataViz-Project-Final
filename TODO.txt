@@ -1,0 +1,52 @@
+Turing Machine
+    States implementation
+        add functionality
+        edit functionality
+        delete functionality
+        Distinguish Start, Accept, Reject
+    Deltas:
+        Show delta on the arrows (Including read, write, direction)
+        Add functionality
+        Edit functionality
+        Delete functionality
+    Alphabet:
+        Edit Blank + Tape Head functionality
+        Edit Alphabet Functionality
+
+Execution
+    Tape
+        Show One Tape
+        Show Pointer over current location of tape
+        Edit Tape
+        Scroll Tape so that pointer is correctly pointed at all times
+        Show multiple tapes
+        Allow for multiple threads to be started at the same time with multiple tapes
+    Active State
+        Transition Multiple states
+        Reset states and Tape
+        Distinguish threads by color to match tape and active state
+    Save
+        Import and Export functionality required
+    Advance:
+        Allow for two+ state advances before updating
+        Allow for periodic update
+        Save thread "times" on required movements
+        Save thread "Tape" requirements over time to show size
+
+Data gathering:
+    Stats
+        Export run time information
+        Export tape information
+    Graphing
+        Show position over time?
+        Show how long it takes?
+
+
+Examples
+    Make about a dozen cool examples to show to class.
+        Same number of A's B's and C's
+        Letter counter
+        Binary Adder
+        Whitespace trimmer
+        Reverse each "word" in a sentence
+        Anything else cool

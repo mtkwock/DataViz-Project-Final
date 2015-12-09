@@ -36,8 +36,6 @@ function graphStates(tm){
     var height = svg.attr('height');
     var width = svg.attr('width');
 
-    console.log(tm.getStates())
-
     svg.selectAll(".state").data(tm.getStates()).enter()
         .append("circle")
         .attr("cx", function(dat){
@@ -123,11 +121,14 @@ function graphActives(exe){
         });
 }
 
+// Try different easing functions:
+// http://bl.ocks.org/hunzy/9929724
 function updateActives(exe, duration){
     duration = duration > 0 ? duration : 0
     var states = exe.getActives();
     d3.selectAll(".state-active")
         .transition()
+        .ease("quad")
         .duration(duration)
         .delay(0)
         .attr("cx", function(d, idx){
