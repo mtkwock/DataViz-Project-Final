@@ -7,12 +7,16 @@ function run() {
     machine = new TuringMachine(evenAs);
     execution = new Execution(machine);
     execution.editTape(0, 1, "a");
+    execution.editTape(0, 2, "a");
+    execution.editTape(0, 3, "a");
+    execution.editTape(0, 4, "a");
     console.log(execution.getThreads());
     document.getElementById("exampleAdvance").onclick = exampleAdvance;
     document.getElementById("export-tm").onclick = exportTm;
     graphDeltas(machine);
     graphStates(machine);
     graphActives(execution);
+    graphThreads(execution);
 }
 
 function exportTm(){
@@ -20,9 +24,15 @@ function exportTm(){
 }
 
 function exampleAdvance(){
-    execution.advance();
-    updateActives(execution, 750);
+    advance(750);
     console.log(execution.getThreads());
+}
+
+function advance(delay){
+    execution.advance();
+    updateActives(execution, delay);
+    updateThreads(execution, delay);
+    graphThreads(execution);
 }
 
 function graphStates(tm){
@@ -124,7 +134,7 @@ function graphActives(exe){
 // Try different easing functions:
 // http://bl.ocks.org/hunzy/9929724
 function updateActives(exe, duration){
-    duration = duration > 0 ? duration : 0
+    duration = duration > 0 ? duration : 0;
     var states = exe.getActives();
     d3.selectAll(".state-active")
         .transition()
@@ -137,6 +147,111 @@ function updateActives(exe, duration){
         .attr("cy", function(d, idx){
             return exe.machine.states[states[idx].state].y;
         })
+}
+
+// Constants to be used elsewhere
+var GLOBALS = {
+    tape: {
+        cellWidth: 25,
+        cellHeight: 20,
+        visibleRadius: 10
+    },
+    vizex: {
+        cx: -1,
+        cy: -1
+    },
+    viztm: {
+        cx: -1,
+        cy: -1
+    }
+}
+
+function updateThreads(exe, duration){
+    duration = duration > 0 ? duration: 0;
+    var deltas = exe.getThreads().map(function(thread){
+        return thread.lastmove;
+    });
+
+    var svg = d3.select("#viz-ex");
+
+    svg.selectAll("#viz-ex > .tapeSection")
+        .transition().ease("quad").duration(duration).delay(0)
+        .attr("x", function(d){
+            return GLOBALS.vizex.cx + (d.idx + deltas[d.threadidx]) * GLOBALS.tape.cellWidth;
+        });
+}
+
+function graphThreads(exe){
+    var threads = exe.getThreads();
+    var visibleRadius = GLOBALS.tape.visibleRadius; // Middle plus radius on each side
+    var cellWidth = GLOBALS.tape.cellWidth; // Pixel Distance between cells
+    var cellHeight = GLOBALS.tape.cellHeight;
+    var threadPortions = threads.map(function(thread, threadidx){
+        var returned = Array(visibleRadius * 2 + 1);
+        for(var i = 0; i < returned.length; i++){
+            var tapeidx = thread.pointer + i - visibleRadius;
+            if(tapeidx >= 0){ // Handle normal cases
+                returned[i] = {
+                    "threadidx": threadidx,       // Editing reference to thread, Controls Displayed Y Position
+                    "tapeidx": tapeidx,           // Editing reference to tape
+                    "idx": i - visibleRadius, // Controls Displayed X position
+                    "val": tapeidx < thread.tape.length ? // Controls displayed value
+                        thread.tape[tapeidx] : exe.machine.tape.blank
+                };
+            }
+            else { // Handle cases where pointer is too far to the left (tapeidx < 0)
+                returned[i] = {
+                    "threadidx": threadidx,
+                    "tapeidx": -1 * visibleRadius,
+                    "idx": 0,
+                    "val": ""
+                }
+            }
+        }
+        return returned;
+    });
+
+    var pointers = threadPortions.map(function(x, idx){
+        return idx;
+    });
+
+    // Pull arrays up a level to linearize it
+    var data = threadPortions.reduce(function(acc, arr){
+        return acc.concat(arr)
+    }, []);
+
+    var svg = d3.select("#viz-ex");
+    var cx = parseInt(svg.style("width")) / 2;
+    GLOBALS.vizex.cx = cx;
+
+    svg.selectAll("#viz-ex > .tapeSection").remove();
+    svg.selectAll(".tapeSection").data(data).enter()
+        .append("text")
+        .attr("class", "tapeSection")
+        .text(function(d){
+            return d.val;
+        })
+        .attr("x", function(d){
+            return cx + d.idx * cellWidth;
+        })
+        .attr("y", function(d){
+            return 25 + d.threadidx * cellHeight;
+        })
+        .attr("font-size", 16)
+        .attr("text-anchor", "middle")
+        .attr("fill", "black");
+
+    svg.selectAll(".pointer").data(pointers).enter()
+        .append("text")
+        .attr("class", "pointer")
+        .text("^")
+        .attr("x", cx)
+        .attr("y", function(d){
+            return 25 + d * cellHeight + 20;
+        })
+        .attr("font-size", 16)
+        .attr("text-anchor", "middle")
+        .attr("fill", "black");
 }
 
 function updateDeltas() {

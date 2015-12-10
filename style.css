@@ -2,6 +2,10 @@
     border: 1px solid black;
 }
 
+#viz-ex {
+    border: 1px solid black;
+}
+
 .link {
   fill: none;
   stroke: #666;

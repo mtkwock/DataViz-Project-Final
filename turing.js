@@ -186,7 +186,8 @@ function Execution(tm){
         {
             active: "start",
             tape: [tm.tape.head],
-            pointer: 0
+            pointer: 0,
+            lastmove: 0
         }
     ];
 }
@@ -237,7 +238,8 @@ Execution.prototype = {
             delta = deltas[0]
             thread.active = delta.to;
             thread.tape[thread.pointer] = delta.write;
-            thread.pointer += delta.move
+            thread.pointer += delta.move;
+            thread.lastmove = delta.move;
 
             // Pushes blanks until pointer is on a valid space
             while(thread.tape.length <= thread.pointer){

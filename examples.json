@@ -2,10 +2,10 @@ evenAs = {
     "tape": {
         "alphabet": [
             ">",
-            " ",
+            "_",
             "a"
         ],
-        "blank": " ",
+        "blank": "_",
         "head": ">"
     },
     "states": {
@@ -34,11 +34,11 @@ evenAs = {
         },
         "evens": {
             "delta": {
-                " ": [
+                "_": [
                     {
                         "move": 0,
                         "to": "accept",
-                        "write": " "
+                        "write": "_"
                     }
                 ],
                 "a": [
@@ -54,11 +54,11 @@ evenAs = {
         },
         "odds": {
             "delta": {
-                " ": [
+                "_": [
                     {
                         "move": 0,
                         "to": "reject",
-                        "write": " "
+                        "write": "_"
                     }
                 ],
                 "a": [
