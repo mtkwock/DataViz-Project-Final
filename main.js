@@ -17,9 +17,9 @@ function run() {
     document.getElementById("exampleAdvance").onclick = exampleAdvance;
     document.getElementById("export-tm").onclick = exportTm;
     var updateTape = function(event){
-        if(event.keyCode === 13){ // Enter pressed
+        // if(event.keyCode === 13){ // Enter pressed
             editTape();
-        }
+        // }
     };
     document.getElementById("thread-num").onkeyup = updateTape;
     document.getElementById("cell-num").onkeyup = updateTape;
@@ -240,6 +240,8 @@ function graphThreads(exe){
     GLOBALS.vizex.cx = cx;
 
     svg.selectAll("#viz-ex > .tapeText").remove();
+    svg.selectAll("#viz-ex > .deleteThread").remove();
+    svg.selectAll("#viz-ex > .pointer").remove();
     svg.selectAll(".tapeText").data(data).enter()
         .append("text")
         .attr("class", "tapeText")
@@ -255,6 +257,19 @@ function graphThreads(exe){
         .attr("font-size", 16)
         .attr("text-anchor", "middle")
         .attr("fill", "black");
+
+    svg.selectAll(".deleteThread").data(pointers)
+        .enter().append("text")
+        .attr("class", "deleteThread")
+        .attr("x", 12)
+        .text("DELETE")
+        .attr("y", function(d){
+            return 25 + d * (cellHeight + 12) + 16;
+        })
+        .attr("font-size", 8)
+        .attr("fill", "black")
+        .on("click", deleteThread);
+
 
     svg.selectAll(".tapeCell").remove();
     // Clickable cells which border the sections
@@ -348,6 +363,12 @@ function editTape(){
 
 function newThread() {
     execution.addThread("start", [execution.machine.tape.head], 0);
+    graphThreads(execution);
+    graphActives(execution);
+}
+
+function deleteThread(d) {
+    execution.deleteThread(d);
     graphThreads(execution);
     graphActives(execution);
 }
