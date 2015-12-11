@@ -257,7 +257,7 @@ Execution.prototype = {
     },
     deleteThread: function(threadIdx){
         if(threadIdx < this.threads.length){
-            this.threads.pop(threadIdx);
+            this.threads.splice(threadIdx, 1);
             return true;
         }
         return false;

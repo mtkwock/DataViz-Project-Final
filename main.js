@@ -368,6 +368,7 @@ function newThread() {
 }
 
 function deleteThread(d) {
+    console.log(d)
     execution.deleteThread(d);
     graphThreads(execution);
     graphActives(execution);
