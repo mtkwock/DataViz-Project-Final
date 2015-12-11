@@ -290,7 +290,7 @@ Execution.prototype = {
         return this.threads.map(function(thread){
             return {
                 state: thread.active,
-                color: "rgba(255, 0, 0, 1)"
+                color: "rgba(255, 0, 0, 0.2)"
             }
         })
     }

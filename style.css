@@ -6,6 +6,18 @@
     border: 1px solid black;
 }
 
+#thread-num {
+    width: 50px;
+}
+
+#cell-num {
+    width: 50px;
+}
+
+.tapeCell {
+    border: 1px solid black;
+}
+
 .link {
   fill: none;
   stroke: #666;

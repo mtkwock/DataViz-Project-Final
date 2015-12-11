@@ -12,10 +12,19 @@
     <body>
         <h1>DataViz Final Project</h1>
         <h2>Mitchell Kwock and Julian Morris</h2>
-        <button id="exampleAdvance" type="button" name="button"> Advance </button><br>
-        <svg id="viz-ex" width="600" height="100"></svg><br>
+        <button id="exampleAdvance" type="button"> Advance </button><br><br>
+        <div>
+            Thread: <input type="number" id="thread-num" value=0> &nbsp;
+            Cell: <input type="number" id="cell-num" value=1> &nbsp;
+            Value <input type="text" id="cell-val">
+            <button onclick="editTape()"> Edit Tape </button>
+        </div>
+        <svg id="viz-ex" width="600" height="150"></svg><br>
         <svg id="viz-tm" width="600" height="400"></svg><br>
+        <div>
+            <button id="newThread" type="button" name="button" onclick="newThread()">Add Thread</button>
+        </div>
         <button id="export-tm" type="button" name="button">Export Turing Machine</button><br>
-        <textarea id="io-box" name="io" rows="20" cols="100"></textarea>
+        <textarea id="io-box" name="io" rows="20" cols="80"></textarea>
     </body>
 </html>

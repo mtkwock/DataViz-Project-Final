@@ -10,9 +10,20 @@ function run() {
     execution.editTape(0, 2, "a");
     execution.editTape(0, 3, "a");
     execution.editTape(0, 4, "a");
-    console.log(execution.getThreads());
+    newThread();
+    execution.editTape(1, 1, "a");
+    execution.editTape(1, 2, "a");
+    execution.editTape(1, 3, "a");
     document.getElementById("exampleAdvance").onclick = exampleAdvance;
     document.getElementById("export-tm").onclick = exportTm;
+    var updateTape = function(event){
+        if(event.keyCode === 13){ // Enter pressed
+            editTape();
+        }
+    };
+    document.getElementById("thread-num").onkeyup = updateTape;
+    document.getElementById("cell-num").onkeyup = updateTape;
+    document.getElementById("cell-val").onkeyup = updateTape;
     graphDeltas(machine);
     graphStates(machine);
     graphActives(execution);
@@ -25,14 +36,13 @@ function exportTm(){
 
 function exampleAdvance(){
     advance(750);
-    console.log(execution.getThreads());
 }
 
 function advance(delay){
+    graphThreads(execution);
     execution.advance();
     updateActives(execution, delay);
     updateThreads(execution, delay);
-    graphThreads(execution);
 }
 
 function graphStates(tm){
@@ -154,7 +164,7 @@ var GLOBALS = {
     tape: {
         cellWidth: 25,
         cellHeight: 20,
-        visibleRadius: 10
+        visibleRadius: 15
     },
     vizex: {
         cx: -1,
@@ -174,11 +184,16 @@ function updateThreads(exe, duration){
 
     var svg = d3.select("#viz-ex");
 
-    svg.selectAll("#viz-ex > .tapeSection")
-        .transition().ease("quad").duration(duration).delay(0)
+    svg.selectAll("#viz-ex > .tapeText")
+        .transition().duration(duration)
         .attr("x", function(d){
-            return GLOBALS.vizex.cx + (d.idx + deltas[d.threadidx]) * GLOBALS.tape.cellWidth;
+            return GLOBALS.vizex.cx + (d.idx - deltas[d.threadidx]) * GLOBALS.tape.cellWidth;
         });
+    svg.selectAll("#viz-ex > .tapeCell")
+        .transition().duration(duration)
+        .attr("x", function(d){
+            return GLOBALS.vizex.cx + (d.idx - deltas[d.threadidx] - 0.5) * GLOBALS.tape.cellWidth;
+        })
 }
 
 function graphThreads(exe){
@@ -203,7 +218,7 @@ function graphThreads(exe){
                 returned[i] = {
                     "threadidx": threadidx,
                     "tapeidx": -1 * visibleRadius,
-                    "idx": 0,
+                    "idx": -100,
                     "val": ""
                 }
             }
@@ -224,10 +239,10 @@ function graphThreads(exe){
     var cx = parseInt(svg.style("width")) / 2;
     GLOBALS.vizex.cx = cx;
 
-    svg.selectAll("#viz-ex > .tapeSection").remove();
-    svg.selectAll(".tapeSection").data(data).enter()
+    svg.selectAll("#viz-ex > .tapeText").remove();
+    svg.selectAll(".tapeText").data(data).enter()
         .append("text")
-        .attr("class", "tapeSection")
+        .attr("class", "tapeText")
         .text(function(d){
             return d.val;
         })
@@ -235,11 +250,30 @@ function graphThreads(exe){
             return cx + d.idx * cellWidth;
         })
         .attr("y", function(d){
-            return 25 + d.threadidx * cellHeight;
+            return 25 + d.threadidx * (cellHeight + 12);
         })
         .attr("font-size", 16)
         .attr("text-anchor", "middle")
         .attr("fill", "black");
+
+    svg.selectAll(".tapeCell").remove();
+    // Clickable cells which border the sections
+    svg.selectAll(".tapeCell").data(data).enter()
+        .append("rect")
+        .attr("class", "tapeCell")
+        .attr("x", function(d){
+            return cx + (d.idx-0.5) * cellWidth;
+        })
+        .attr("y", function(d){
+            return 12 + d.threadidx * (cellHeight + 12);
+        })
+        .attr("width", cellWidth)
+        .attr("height", cellHeight)
+        .attr("fill", "rgba(0, 0, 0, 0.1)")
+        .attr("stroke-width", 1)
+        .attr("stroke", "black")
+        .attr("stroke-opacity", 0.5)
+        .on("click", selectTape);
 
     svg.selectAll(".pointer").data(pointers).enter()
         .append("text")
@@ -247,7 +281,7 @@ function graphThreads(exe){
         .text("^")
         .attr("x", cx)
         .attr("y", function(d){
-            return 25 + d * cellHeight + 20;
+            return 25 + d * (cellHeight + 12) + 20;
         })
         .attr("font-size", 16)
         .attr("text-anchor", "middle")
@@ -290,5 +324,30 @@ function dragended(d) {
     d3.select(this).classed("dragging", false);
     graphDeltas(machine);
     graphStates(machine);
+    graphActives(execution);
+}
+
+function selectTape(d){
+    d3.select("#thread-num").property("value", d.threadidx);
+    d3.select("#cell-num").property("value", d.tapeidx);
+    d3.select("#cell-val").property("value", d.val);
+    execution.threads[d.threadidx].pointer = d.tapeidx;
+    var input = document.getElementById("cell-val");
+    input.focus();
+    input.setSelectionRange(0, input.value.length);
+    graphThreads(execution);
+}
+
+function editTape(){
+    var threadNum = d3.select("#thread-num").property("value");
+    var cellNum = d3.select("#cell-num").property("value");
+    var cellVal = d3.select("#cell-val").property("value");
+    execution.editTape(threadNum, cellNum, cellVal);
+    graphThreads(execution);
+}
+
+function newThread() {
+    execution.addThread("start", [execution.machine.tape.head], 0);
+    graphThreads(execution);
     graphActives(execution);
 }
