@@ -97,6 +97,7 @@ function graphDeltas(tm) {
     var svg = d3.select("#viz-tm");
     svg.selectAll("#viz-tm > .delta").remove();
     svg.selectAll("#viz-tm > g > .link").remove();
+    svg.selectAll("#viz-tm > .deltaLabel").remove();
 
     svg.append("defs").selectAll("marker").data(["triangle"]).enter()
         .append("marker")
@@ -112,6 +113,23 @@ function graphDeltas(tm) {
         .attr("orient", "auto")
         .append("path")
         .attr("d", "M0,-5L10,0L0,5");
+
+    svg.selectAll(".deltaLabel").data(deltas).enter()
+        .append("text")
+        .attr("class", "deltaLabel")
+        .text(function(d){
+            // { "from", "to", "idx", "read", "write", "move"};
+            var arr = [d.read, d.to, d.write, d.move];
+            return arr.join(", ")
+        })
+        .attr("text-anchor", "middle")
+        .attr("font-size", 12)
+        .attr("x", function(d){
+            return getDeltaPos(d).x;
+        })
+        .attr("y", function(d){
+            return getDeltaPos(d).y;
+        })
 
     var path = svg.append("g").selectAll("path")
         .data(deltas).enter().append("path")
@@ -189,11 +207,32 @@ function updateThreads(exe, duration){
         .attr("x", function(d){
             return GLOBALS.vizex.cx + (d.idx - deltas[d.threadidx]) * GLOBALS.tape.cellWidth;
         });
+
     svg.selectAll("#viz-ex > .tapeCell")
         .transition().duration(duration)
         .attr("x", function(d){
             return GLOBALS.vizex.cx + (d.idx - deltas[d.threadidx] - 0.5) * GLOBALS.tape.cellWidth;
         })
+
+    var states = exe.getActives();
+    svg.selectAll("#viz-ex > .threadStatus")
+        .attr("fill", function(d, idx){
+            var colorCode = {
+                "inactive": "rgba(0, 0, 0, 0.1)",
+                "active": "rgba(0, 0, 0, 0.2)",
+                "accept": "rgba(0, 255, 0, 0.1)",
+                "reject": "rgba(255, 0, 0, 0.1)"
+            };
+            var state = states[idx].state;
+            if(state === "accept" || state === "reject"){
+                return colorCode[state];
+            }
+            if(state !== "start"){
+                return colorCode.active;
+            }
+            return colorCode[d.status] ? colorCode[d.status] : "black"; // Black is an obvious error made somewhere
+        })
+
 }
 
 function graphThreads(exe){
@@ -207,6 +246,7 @@ function graphThreads(exe){
             var tapeidx = thread.pointer + i - visibleRadius;
             if(tapeidx >= 0){ // Handle normal cases
                 returned[i] = {
+                    "status": thread.status,
                     "threadidx": threadidx,       // Editing reference to thread, Controls Displayed Y Position
                     "tapeidx": tapeidx,           // Editing reference to tape
                     "idx": i - visibleRadius, // Controls Displayed X position
@@ -218,7 +258,7 @@ function graphThreads(exe){
                 returned[i] = {
                     "threadidx": threadidx,
                     "tapeidx": -1 * visibleRadius,
-                    "idx": -100,
+                    "idx": -100, // Should not be visible
                     "val": ""
                 }
             }
@@ -226,8 +266,11 @@ function graphThreads(exe){
         return returned;
     });
 
-    var pointers = threadPortions.map(function(x, idx){
-        return idx;
+    var pointers = threads.map(function(x, idx){
+        return {
+            idx: idx,
+            status: x.status
+        };
     });
 
     // Pull arrays up a level to linearize it
@@ -241,7 +284,10 @@ function graphThreads(exe){
 
     svg.selectAll("#viz-ex > .tapeText").remove();
     svg.selectAll("#viz-ex > .deleteThread").remove();
+    svg.selectAll("#viz-ex > .resetThread").remove();
+    svg.selectAll("#viz-ex > .threadStatus").remove();
     svg.selectAll("#viz-ex > .pointer").remove();
+
     svg.selectAll(".tapeText").data(data).enter()
         .append("text")
         .attr("class", "tapeText")
@@ -264,12 +310,44 @@ function graphThreads(exe){
         .attr("x", 12)
         .text("DELETE")
         .attr("y", function(d){
-            return 25 + d * (cellHeight + 12) + 16;
+            return 25 + d.idx * (cellHeight + 12) + 16;
         })
         .attr("font-size", 8)
         .attr("fill", "black")
         .on("click", deleteThread);
 
+    svg.selectAll(".resetThread").data(pointers)
+        .enter().append("text")
+        .attr("class", "resetThread")
+        .attr("x", 54)
+        .text("RESET")
+        .attr("y", function(d){
+            return 25 + d.idx * (cellHeight + 12) + 16;
+        })
+        .attr("font-size", 8)
+        .attr("fill", "black")
+        .on("click", resetThread);
+
+    svg.selectAll(".threadStatus").data(pointers)
+        .enter().append("rect")
+        .attr("class", "threadStatus")
+        .attr("x", function(d){
+            return 0;
+        })
+        .attr("y", function(d){
+            return 12 + d.idx * (cellHeight + 12);
+        })
+        .attr("width", cx * 2)
+        .attr("height", cellHeight)
+        .attr("fill", function(d){
+            var colorCode = {
+                "inactive": "rgba(0, 0, 0, 0.1)",
+                "active": "rgba(0, 0, 0, 0.2)",
+                "accept": "rgba(0, 255, 0, 0.1)",
+                "reject": "rgba(255, 0, 0, 0.1)"
+            };
+            return colorCode[d.status];
+        })
 
     svg.selectAll(".tapeCell").remove();
     // Clickable cells which border the sections
@@ -284,7 +362,9 @@ function graphThreads(exe){
         })
         .attr("width", cellWidth)
         .attr("height", cellHeight)
-        .attr("fill", "rgba(0, 0, 0, 0.1)")
+        .attr("fill", function(d){
+            return "rgba(0, 0, 0, 0.1)";
+        })
         .attr("stroke-width", 1)
         .attr("stroke", "black")
         .attr("stroke-opacity", 0.5)
@@ -296,7 +376,7 @@ function graphThreads(exe){
         .text("^")
         .attr("x", cx)
         .attr("y", function(d){
-            return 25 + d * (cellHeight + 12) + 20;
+            return 25 + d.idx * (cellHeight + 12) + 20;
         })
         .attr("font-size", 16)
         .attr("text-anchor", "middle")
@@ -305,6 +385,34 @@ function graphThreads(exe){
 
 function updateDeltas() {
     d3.selectAll("#viz-tm > g > path").attr("d", linkArc);
+    d3.selectAll("#viz-tm > .deltaLabel")
+    d3.selectAll("#viz-tm > .deltaLabel")
+        .attr("x", function(d){
+            return getDeltaPos(d).x;
+        })
+        .attr("y", function(d){
+            return getDeltaPos(d).y;
+        })
+}
+
+// Using target and source, find an X/Y position to place the label
+function getDeltaPos(d){
+    var target = machine.states[d.to],
+        source = machine.states[d.from],
+        vec = {
+            x: target.x - source.x,
+            y: target.y - source.y
+        },
+        perpVec = {
+            x: vec.y * -1,
+            y: vec.x
+        },
+        output = { // Can be compressed into one or two lines later
+            x: vec.x * 0.5 + perpVec.x * -0.25 + source.x,
+            y: vec.y * 0.5 + perpVec.y * -0.25 + source.y
+        };
+
+    return output;
 }
 
 // Obtained from: https://gist.github.com/mbostock/1153292
@@ -369,7 +477,14 @@ function newThread() {
 
 function deleteThread(d) {
     console.log(d)
-    execution.deleteThread(d);
+    execution.deleteThread(d.idx);
+    graphThreads(execution);
+    graphActives(execution);
+}
+
+function resetThread(d) {
+    console.log(d)
+    execution.resetThread(d.idx);
     graphThreads(execution);
     graphActives(execution);
 }

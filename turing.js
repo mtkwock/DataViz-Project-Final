@@ -187,7 +187,18 @@ function Execution(tm){
             active: "start",
             tape: [tm.tape.head],
             pointer: 0,
-            lastmove: 0
+            lastmove: 0,
+            lifetime: 0, // How many steps this thread has been active
+            status: "inactive", // Handles threads differently depending on status
+            // Can be: "inactive", "active", "accept", "reject"
+            // Can only edit "inactive" threads. Displays Green when "accept", displays Red when "reject"
+            init: { // Initial state of the thread
+                active: "start",
+                tape: [tm.tape.head],
+                pointer: 0,
+                lifetime: 0,
+                lastmove: 0
+            }
         }
     ];
 }
@@ -207,13 +218,17 @@ Execution.prototype = {
     advance: function(){
         var self = this;
         this.threads.forEach(function(thread, idx){
+            if(thread.status === "inactive"){
+                thread.status = "active";
+            }
             if(thread.active === "accept" || thread.active === "reject"){
-                // Do not execute anything for accepted/rejected threads
+                thread.status = thread.active;
                 return;
             }
             // Pointer went too far to the left.  Segfault
             if(thread.pointer < 0){
                 thread.active = "reject";
+                thread.status = "reject";
                 return;
             }
 
@@ -221,6 +236,7 @@ Execution.prototype = {
                 .delta[thread.tape[thread.pointer]];
             if(!deltas || deltas.length < 1){ // No delta found.  Is now rejecting
                 thread.active = "reject";
+                thread.status = "reject";
                 return;
             }
 
@@ -231,12 +247,17 @@ Execution.prototype = {
                 delta = deltas[i];
                 var newTape = thread.tape.slice(); // Copy current tape
                 newTape[pointer] = delta.write; // Edit tape with new write
-                self.addThread(delta.to, newTape, thread.pointer + delta.move); // Append thread to execute
+                self.addThread(delta.to, newTape, thread.pointer + delta.move, thread.lifetime + 1, delta.move); // Append thread to execute
             }
 
             // Edit current thread
             delta = deltas[0]
             thread.active = delta.to;
+
+            if(thread.active === "accept" || thread.active === "reject"){
+                thread.status = thread.active;
+            }
+            thread.lifetime++;
             thread.tape[thread.pointer] = delta.write;
             thread.pointer += delta.move;
             thread.lastmove = delta.move;
@@ -248,17 +269,39 @@ Execution.prototype = {
         });
     },
     // Adds new thread to the threads to run
-    addThread: function(active, tape, pointer){
+    addThread: function(active, tape, pointer, lifetime, lastmove){
         this.threads.push({
             "active": active,
-            "tape": tape,
-            "pointer": pointer
+            "tape": tape.slice(),
+            "pointer": pointer,
+            "lifetime": lifetime || 0,
+            "status": "inactive",
+            "lastmove": lastmove || 0,
+            "init": {
+                "active": active,
+                "tape": tape.slice(),
+                "pointer": pointer,
+                "lifetime": lifetime || 0,
+                "lastmove": lastmove || 0
+            }
         });
     },
     deleteThread: function(threadIdx){
         if(threadIdx < this.threads.length){
             this.threads.splice(threadIdx, 1);
             return true;
+        }
+        return false;
+    },
+    resetThread: function(threadIdx){
+        if(threadIdx < this.threads.length && threadIdx >= 0){
+            var thread = this.threads[threadIdx];
+            thread.active = thread.init.active;
+            thread.tape = thread.init.tape.slice() // Copy init thread
+            thread.pointer = thread.init.pointer;
+            thread.lifetime = thread.init.lifetime;
+            thread.lastmove = thread.init.lastmove;
+            thread.status = "inactive";
         }
         return false;
     },
@@ -276,11 +319,16 @@ Execution.prototype = {
             console.error("Reached invalid thread number: " + threadNum);
             return false;
         }
+        if(this.threads[threadNum].status !== "inactive"){
+            console.error("Thread is not inactive, cannot edit: " + this.threads[threadNum].status);
+            return false;
+        }
         var tape = this.threads[threadNum].tape
         while(idx >= tape.length){
             tape.push(this.machine.tape.blank);
         }
         tape[idx] = val;
+        this.threads[threadNum].init.tape = tape.slice(); // A bit inefficient, bu
         return true;
     },
     getThreads: function(){
