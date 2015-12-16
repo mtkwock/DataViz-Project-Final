@@ -2,6 +2,8 @@ window.addEventListener("load", run);
 
 var machine;
 var execution;
+var playing = false;
+var intervalLoop;
 
 function run() {
     machine = new TuringMachine(evenAs);
@@ -14,7 +16,7 @@ function run() {
     execution.editTape(1, 1, "a");
     execution.editTape(1, 2, "a");
     execution.editTape(1, 3, "a");
-    document.getElementById("exampleAdvance").onclick = exampleAdvance;
+    document.getElementById("playPause").onclick = playPause;
     document.getElementById("export-tm").onclick = exportTm;
     var updateTape = function(event){
         // if(event.keyCode === 13){ // Enter pressed
@@ -34,9 +36,21 @@ function exportTm(){
     document.getElementById("io-box").value = machine.stringify();
 }
 
-function exampleAdvance(){
-    advance(750);
+function playPause(){
+    if (playing) {
+        playing = false;
+        window.clearInterval(intervalLoop);
+    }else{
+        playing = true;
+        intervalLoop=window.setInterval(function(){
+            advance(750);
+        },1000);
+    }
 }
+
+
+
+
 
 function advance(delay){
     graphThreads(execution);
