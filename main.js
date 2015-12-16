@@ -594,3 +594,17 @@ function deleteDelta(){
     graphStates(machine);
     graphActives(execution);
 }
+
+function setTape(){
+    var string = getVal("edit-tape");
+    var threadNum = parseInt(getVal("thread-num"));
+    var regstring = "" + machine.tape.alphabet.join("|") + "";
+    var regex = new RegExp(regstring, "g");
+    var vals = string.match(regex);
+
+    vals.forEach(function(val, idx){
+        execution.editTape(threadNum, idx+1, val);
+    })
+    graphThreads(execution);
+    // console.log(string.match(regex));
+}
