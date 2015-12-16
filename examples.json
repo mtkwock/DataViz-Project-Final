@@ -614,7 +614,8 @@ reverseString = {
     }
 }
 
-palindrome = {
+
+palindrome =  {
     "tape": {
         "alphabet": [
             ">",
@@ -834,3 +835,4 @@ palindrome = {
         }
     }
 }
+

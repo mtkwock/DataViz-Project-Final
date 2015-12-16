@@ -4,6 +4,7 @@ var machine;
 var execution;
 var playing = false;
 var intervalLoop;
+<<<<<<< 1191d8ee6aff85d9738d63ea3b55f4a85b0edfdd
 var tmNumber = 0;
 var tmList = [
     evenAs,
@@ -14,20 +15,24 @@ var tmList = [
 
 function run() {
     machine = new TuringMachine(evenAs);
+=======
+var tmNumber = 1;
+var tmList = [evenAs,anbn,palindrome];
+
+function run() {
+    machine = new TuringMachine(tmList[tmNumber-1]);
+>>>>>>> palindrome
     execution = new Execution(machine);
     execution.editTape(0, 1, "a");
     execution.editTape(0, 2, "a");
     execution.editTape(0, 3, "a");
     execution.editTape(0, 4, "a");
-    execution.editTape(0, 5, "b");
-    execution.editTape(0, 6, "b");
-    execution.editTape(0, 7, "b");
     //execution.editTape(0, 8, "b");
 
     newThread();
     execution.editTape(1, 1, "a");
     execution.editTape(1, 2, "a");
-    execution.editTape(1, 3, "b");
+
     document.getElementById("playPause").onclick = playPause;
     var updateTape = function(event){
         // if(event.keyCode === 13){ // Enter pressed
@@ -70,18 +75,21 @@ function playPause(){
 }
 
 function changeTM(){
+<<<<<<< 1191d8ee6aff85d9738d63ea3b55f4a85b0edfdd
     var el = document.getElementById("selected-tm");
     var select = el.options[el.selectedIndex].value;
     machine = new TuringMachine(tmList[select]);
+=======
+    var index = tmNumber++%tmList.length
+    machine = new TuringMachine(tmList[index]);
+>>>>>>> palindrome
     execution = new Execution(machine);
-
+    console.log(index);
     execution.editTape(0, 1, "a");
     execution.editTape(0, 2, "a");
     execution.editTape(0, 3, "a");
     execution.editTape(0, 4, "a");
-    execution.editTape(0, 5, "b");
-    execution.editTape(0, 6, "b");
-    execution.editTape(0, 7, "b");
+
 
     graphDeltas(machine);
     graphStates(machine);
