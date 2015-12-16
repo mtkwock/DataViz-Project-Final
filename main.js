@@ -8,7 +8,8 @@ var tmNumber = 0;
 var tmList = [
     evenAs,
     anbn,
-    reverseString
+    reverseString,
+    palindrome
 ];
 
 function run() {
@@ -73,6 +74,14 @@ function changeTM(){
     var select = el.options[el.selectedIndex].value;
     machine = new TuringMachine(tmList[select]);
     execution = new Execution(machine);
+
+    execution.editTape(0, 1, "a");
+    execution.editTape(0, 2, "a");
+    execution.editTape(0, 3, "a");
+    execution.editTape(0, 4, "a");
+    execution.editTape(0, 5, "b");
+    execution.editTape(0, 6, "b");
+    execution.editTape(0, 7, "b");
 
     graphDeltas(machine);
     graphStates(machine);
