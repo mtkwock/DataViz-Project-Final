@@ -5,10 +5,14 @@ var execution;
 var playing = false;
 var intervalLoop;
 var tmNumber = 0;
-var tmList = [evenAs,anbn];
+var tmList = [
+    evenAs,
+    anbn,
+    reverseString
+];
 
 function run() {
-    machine = new TuringMachine(anbn);
+    machine = new TuringMachine(evenAs);
     execution = new Execution(machine);
     execution.editTape(0, 1, "a");
     execution.editTape(0, 2, "a");
@@ -24,8 +28,6 @@ function run() {
     execution.editTape(1, 2, "a");
     execution.editTape(1, 3, "b");
     document.getElementById("playPause").onclick = playPause;
-    document.getElementById("changeTM").onclick = changeTM;
-    document.getElementById("export-tm").onclick = exportTm;
     var updateTape = function(event){
         // if(event.keyCode === 13){ // Enter pressed
             editTape();
@@ -44,20 +46,32 @@ function exportTm(){
     document.getElementById("io-box").value = machine.stringify();
 }
 
+function importTm(){
+    var tmString = document.getElementById("io-box").value;
+    machine.load(tmString);
+    graphDeltas(machine);
+    graphStates(machine);
+    graphActives(machine);
+}
+
 function playPause(){
     if (playing) {
         playing = false;
         window.clearInterval(intervalLoop);
-    }else{
+    }
+    else {
+        var delay = parseInt(getVal("delayLength"));
         playing = true;
         intervalLoop=window.setInterval(function(){
-            advance(750);
-        },1000);
+            advance(delay * 0.75);
+        }, delay);
     }
 }
 
 function changeTM(){
-    machine = new TuringMachine(tmList[(tmNumber++)%tmList.length]);
+    var el = document.getElementById("selected-tm");
+    var select = el.options[el.selectedIndex].value;
+    machine = new TuringMachine(tmList[select]);
     execution = new Execution(machine);
 
     graphDeltas(machine);
@@ -148,7 +162,7 @@ function graphDeltas(tm) {
         .attr("class", "deltaLabel")
         .text(function(d){
             // { "from", "to", "idx", "read", "write", "move"};
-            var arr = [d.read, d.to, d.write, d.move];
+            var arr = [d.read, d.write, d.move];
             return arr.join(", ")
         })
         .attr("text-anchor", "middle")

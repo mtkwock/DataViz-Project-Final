@@ -12,8 +12,13 @@
     <body>
         <h1>DataViz Final Project</h1>
         <h2>Mitchell Kwock and Julian Morris</h2>
-        <button id="playPause" type="button"> Play/Pause </button><br><br>
-        <button id="changeTM" type="button"> changeTM </button><br><br>
+        <button id="playPause" type="button"> Play/Pause </button> Delay: <input type="number" id="delayLength" value="1000">
+        <br><br>
+        <select class="" id="selected-tm" onchange="changeTM()">
+            <option value="0">a^(2n)</option>
+            <option value="1">a^(n) b^n</option>
+            <option value="2">Reverse Given String (a, b, c, d)</option>
+        </select>
         <table>
             <tr>
                 <td>
@@ -54,7 +59,9 @@
                 </td>
             </tr>
         </table>
-        <button id="export-tm" type="button" name="button">Export Turing Machine</button><br>
+        <button id="export-tm" type="button" onclick="exportTm()">Export Turing Machine</button>
+        <button id="import-tm" type="button" onclick="importTm()">Import Turing Machine</button>
+        <br>
         <textarea id="io-box" name="io" rows="20" cols="80"></textarea>
     </body>
 </html>

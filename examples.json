@@ -221,3 +221,395 @@ anbn = {
         }
     }
 }
+
+reverseString = {
+    "tape": {
+        "alphabet": [
+            ">",
+            "_",
+            "a",
+            "b",
+            "c",
+            "d",
+            "#",
+            "*"
+        ],
+        "blank": "_",
+        "head": ">"
+    },
+    "states": {
+        "start": {
+            "delta": {
+                ">": [
+                    {
+                        "move": 1,
+                        "to": "goto_end",
+                        "write": ">"
+                    }
+                ]
+            },
+            "x": 87,
+            "y": 236
+        },
+        "accept": {
+            "delta": {},
+            "x": 527,
+            "y": 59
+        },
+        "reject": {
+            "delta": {},
+            "x": 529,
+            "y": 309
+        },
+        "goto_end": {
+            "delta": {
+                "a": [
+                    {
+                        "move": 1,
+                        "to": "goto_end",
+                        "write": "a"
+                    }
+                ],
+                "b": [
+                    {
+                        "move": 1,
+                        "to": "goto_end",
+                        "write": "b"
+                    }
+                ],
+                "c": [
+                    {
+                        "move": 1,
+                        "to": "goto_end",
+                        "write": "c"
+                    }
+                ],
+                "d": [
+                    {
+                        "move": 1,
+                        "to": "goto_end",
+                        "write": "d"
+                    }
+                ],
+                "_": [
+                    {
+                        "move": -1,
+                        "to": "until_char",
+                        "write": "#"
+                    }
+                ]
+            },
+            "x": 76,
+            "y": 87
+        },
+        "until_char": {
+            "delta": {
+                "*": [
+                    {
+                        "move": -1,
+                        "to": "until_char",
+                        "write": "*"
+                    }
+                ],
+                "a": [
+                    {
+                        "move": 1,
+                        "to": "saw_a",
+                        "write": "*"
+                    }
+                ],
+                "b": [
+                    {
+                        "move": 1,
+                        "to": "saw_b",
+                        "write": "*"
+                    }
+                ],
+                "c": [
+                    {
+                        "move": 1,
+                        "to": "saw_c",
+                        "write": "*"
+                    }
+                ],
+                "d": [
+                    {
+                        "move": 1,
+                        "to": "saw_d",
+                        "write": "*"
+                    }
+                ],
+                ">": [
+                    {
+                        "move": 0,
+                        "to": "accept",
+                        "write": ">"
+                    }
+                ]
+            },
+            "x": 192,
+            "y": 39
+        },
+        "saw_a": {
+            "delta": {
+                "*": [
+                    {
+                        "move": 1,
+                        "to": "saw_a",
+                        "write": "*"
+                    }
+                ],
+                "#": [
+                    {
+                        "move": 1,
+                        "to": "saw_a",
+                        "write": "#"
+                    }
+                ],
+                "a": [
+                    {
+                        "move": 1,
+                        "to": "saw_a",
+                        "write": "a"
+                    }
+                ],
+                "b": [
+                    {
+                        "move": 1,
+                        "to": "saw_a",
+                        "write": "b"
+                    }
+                ],
+                "c": [
+                    {
+                        "move": 1,
+                        "to": "saw_a",
+                        "write": "c"
+                    }
+                ],
+                "d": [
+                    {
+                        "move": 1,
+                        "to": "saw_a",
+                        "write": "d"
+                    }
+                ],
+                "_": [
+                    {
+                        "move": -1,
+                        "to": "until_hash",
+                        "write": "a"
+                    }
+                ]
+            },
+            "x": 262,
+            "y": 166
+        },
+        "saw_b": {
+            "delta": {
+                "_": [
+                    {
+                        "move": -1,
+                        "to": "until_hash",
+                        "write": "b"
+                    }
+                ],
+                "*": [
+                    {
+                        "move": 1,
+                        "to": "saw_b",
+                        "write": "*"
+                    }
+                ],
+                "#": [
+                    {
+                        "move": 1,
+                        "to": "saw_b",
+                        "write": "#"
+                    }
+                ],
+                "a": [
+                    {
+                        "move": 1,
+                        "to": "saw_b",
+                        "write": "a"
+                    }
+                ],
+                "b": [
+                    {
+                        "move": 1,
+                        "to": "saw_b",
+                        "write": "b"
+                    }
+                ],
+                "c": [
+                    {
+                        "move": 1,
+                        "to": "saw_b",
+                        "write": "c"
+                    }
+                ],
+                "d": [
+                    {
+                        "move": 1,
+                        "to": "saw_b",
+                        "write": "d"
+                    }
+                ]
+            },
+            "x": 343,
+            "y": 166
+        },
+        "saw_c": {
+            "delta": {
+                "_": [
+                    {
+                        "move": -1,
+                        "to": "until_hash",
+                        "write": "c"
+                    }
+                ],
+                "*": [
+                    {
+                        "move": 1,
+                        "to": "saw_c",
+                        "write": "*"
+                    }
+                ],
+                "#": [
+                    {
+                        "move": 1,
+                        "to": "saw_c",
+                        "write": "#"
+                    }
+                ],
+                "a": [
+                    {
+                        "move": 1,
+                        "to": "saw_c",
+                        "write": "a"
+                    }
+                ],
+                "b": [
+                    {
+                        "move": 1,
+                        "to": "saw_c",
+                        "write": "b"
+                    }
+                ],
+                "c": [
+                    {
+                        "move": 1,
+                        "to": "saw_c",
+                        "write": "c"
+                    }
+                ],
+                "d": [
+                    {
+                        "move": 1,
+                        "to": "saw_c",
+                        "write": "d"
+                    }
+                ]
+            },
+            "x": 435,
+            "y": 162
+        },
+        "saw_d": {
+            "delta": {
+                "_": [
+                    {
+                        "move": -1,
+                        "to": "until_hash",
+                        "write": "d"
+                    }
+                ],
+                "*": [
+                    {
+                        "move": 1,
+                        "to": "saw_d",
+                        "write": "*"
+                    }
+                ],
+                "#": [
+                    {
+                        "move": 1,
+                        "to": "saw_d",
+                        "write": "#"
+                    }
+                ],
+                "a": [
+                    {
+                        "move": 1,
+                        "to": "saw_d",
+                        "write": "a"
+                    }
+                ],
+                "b": [
+                    {
+                        "move": 1,
+                        "to": "saw_d",
+                        "write": "b"
+                    }
+                ],
+                "c": [
+                    {
+                        "move": 1,
+                        "to": "saw_d",
+                        "write": "c"
+                    }
+                ],
+                "d": [
+                    {
+                        "move": 1,
+                        "to": "saw_d",
+                        "write": "d"
+                    }
+                ]
+            },
+            "x": 532,
+            "y": 166
+        },
+        "until_hash": {
+            "delta": {
+                "a": [
+                    {
+                        "move": -1,
+                        "to": "until_hash",
+                        "write": "a"
+                    }
+                ],
+                "b": [
+                    {
+                        "move": -1,
+                        "to": "until_hash",
+                        "write": "b"
+                    }
+                ],
+                "c": [
+                    {
+                        "move": -1,
+                        "to": "until_hash",
+                        "write": "c"
+                    }
+                ],
+                "d": [
+                    {
+                        "move": -1,
+                        "to": "until_hash",
+                        "write": "d"
+                    }
+                ],
+                "#": [
+                    {
+                        "move": -1,
+                        "to": "until_char",
+                        "write": "#"
+                    }
+                ]
+            },
+            "x": 187,
+            "y": 286
+        }
+    }
+}
