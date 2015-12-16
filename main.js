@@ -4,19 +4,27 @@ var machine;
 var execution;
 var playing = false;
 var intervalLoop;
+var tmNumber = 0;
+var tmList = [evenAs,anbn];
 
 function run() {
-    machine = new TuringMachine(evenAs);
+    machine = new TuringMachine(anbn);
     execution = new Execution(machine);
     execution.editTape(0, 1, "a");
     execution.editTape(0, 2, "a");
     execution.editTape(0, 3, "a");
     execution.editTape(0, 4, "a");
+    execution.editTape(0, 5, "b");
+    execution.editTape(0, 6, "b");
+    execution.editTape(0, 7, "b");
+    //execution.editTape(0, 8, "b");
+
     newThread();
     execution.editTape(1, 1, "a");
     execution.editTape(1, 2, "a");
-    execution.editTape(1, 3, "a");
+    execution.editTape(1, 3, "b");
     document.getElementById("playPause").onclick = playPause;
+    document.getElementById("changeTM").onclick = changeTM;
     document.getElementById("export-tm").onclick = exportTm;
     var updateTape = function(event){
         // if(event.keyCode === 13){ // Enter pressed
@@ -48,8 +56,15 @@ function playPause(){
     }
 }
 
+function changeTM(){
+    machine = new TuringMachine(tmList[(tmNumber++)%tmList.length]);
+    execution = new Execution(machine);
 
-
+    graphDeltas(machine);
+    graphStates(machine);
+    graphActives(execution);
+    graphThreads(execution);
+}
 
 
 function advance(delay){
