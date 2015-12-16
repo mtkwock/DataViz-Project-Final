@@ -257,12 +257,14 @@ Execution.prototype = {
             }
             if(thread.active === "accept" || thread.active === "reject"){
                 thread.status = thread.active;
+                thread.lastmove = 0;
                 return;
             }
             // Pointer went too far to the left.  Segfault
             if(thread.pointer < 0){
                 thread.active = "reject";
                 thread.status = "reject";
+                thread.lastmove = 0;
                 return;
             }
 
@@ -271,6 +273,7 @@ Execution.prototype = {
             if(!deltas || deltas.length < 1){ // No delta found.  Is now rejecting
                 thread.active = "reject";
                 thread.status = "reject";
+                thread.lastmove = 0;
                 return;
             }
 

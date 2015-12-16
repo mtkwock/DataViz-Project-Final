@@ -79,7 +79,6 @@ function changeTM(){
     execution.editTape(0, 3, "a");
     execution.editTape(0, 4, "a");
 
-
     graphDeltas(machine);
     graphStates(machine);
     graphActives(execution);
@@ -119,6 +118,8 @@ function graphStates(tm){
         .attr("r", 25)
         .attr("class", "state")
         .style("fill", "#BBBBBB")
+        .attr("stroke", "black")
+        .attr("stroke-width", 1)
         .call(drag)
 
     svg.selectAll(".state-label").data(tm.getStates()).enter()
@@ -134,11 +135,11 @@ function graphStates(tm){
             return d.x;
         })
         .attr("y", function(d){
-            return d.y + 36;
+            return d.y + 38;
         })
         .attr("font-size", 12)
         .attr("text-anchor", "middle")
-        .attr("fill", "red");
+        .attr("fill", "black");
 }
 
 function graphDeltas(tm) {
@@ -212,7 +213,9 @@ function graphActives(exe){
         .attr("r", 20)
         .attr("fill", function(d){
             return d.color;
-        });
+        }).attr("stroke", "red")
+        .attr("stroke-width", 1)
+;
 }
 
 // Try different easing functions:
