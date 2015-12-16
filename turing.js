@@ -51,7 +51,7 @@ TuringMachine.prototype = {
 
     // return true if specified string is a valid alphabet member
     checkAlphabet: function(string){
-        if(this.alphabet.indexOf(string) >= 0){
+        if(this.tape.alphabet.indexOf(string) >= 0){
             console.log("In the alphabet: " + string);
             return true;
         }
@@ -94,8 +94,8 @@ TuringMachine.prototype = {
         }
         var state = {
             "delta": {},
-            "x": -1,
-            "y": -1
+            "x": 150,
+            "y": 150
         };
         this.states[name] = state;
         return true;
@@ -119,7 +119,22 @@ TuringMachine.prototype = {
             console.error("Cannot delete critical state: " + state)
             return false;
         }
-        return delete states[state];
+
+        var deltas = this.getDeltas();
+        delete this.states[state];
+        var deleted = deltas.filter(function(delta){
+            return delta.to === state;
+        });
+
+        deleted.reverse();
+
+        var self = this;
+
+        deleted.forEach(function(delta){
+            self.deleteDelta(delta.from, delta.read, delta.idx)
+        });
+
+        return true;
     },
 
     // Add, edit, delete functionality for deltas
@@ -140,6 +155,9 @@ TuringMachine.prototype = {
             console.log("addDelta failed");
             return false;
         }
+        if(!this.states[state].delta[read]){
+            this.states[state].delta[read] = [];
+        }
         this.states[state].delta[read].push({
             "move": parseInt(move),
             "to": to,
@@ -152,7 +170,23 @@ TuringMachine.prototype = {
         console.error("Magic not implemented");
     },
     deleteDelta: function(state, read, deltaIdx){
-        console.error("Magic not implemented");
+        if(!this.checkState(state)){
+            console.error("Not a state: " + state);
+            return false;
+        }
+        var dels = this.states[state].delta[read];
+        if(!dels){
+            console.log(dels);
+            console.error("Delta does not exist for " + state + ": " + read);
+            return false;
+        }
+        if(dels.length <= deltaIdx){
+            console.error("Delta Index out of range: " + deltaIdx);
+            return false;
+        }
+
+        dels.pop(deltaIdx);
+        return true;
     },
 
     addAlphabet: function(string){

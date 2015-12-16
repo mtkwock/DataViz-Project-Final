@@ -14,17 +14,46 @@
         <h2>Mitchell Kwock and Julian Morris</h2>
         <button id="playPause" type="button"> Play/Pause </button><br><br>
         <button id="changeTM" type="button"> changeTM </button><br><br>
-        <div>
-            Thread: <input type="number" id="thread-num" value=0> &nbsp;
-            Cell: <input type="number" id="cell-num" value=1> &nbsp;
-            Value <input type="text" id="cell-val">
-            <button onclick="editTape()"> Edit Tape </button>
-        </div>
-        <div>
-            <button id="newThread" type="button" name="button" onclick="newThread()">Add Thread</button>
-        </div>
-        <svg id="viz-ex" width="600" height="150"></svg><br>
-        <svg id="viz-tm" width="600" height="400"></svg><br>
+        <table>
+            <tr>
+                <td>
+                    <svg id="viz-ex" width="600" height="150"></svg><br>
+                    <svg id="viz-tm" width="600" height="400"></svg><br>
+                </td>
+                <td>
+                    <div>
+                        <h3>Thread Manipulation</h3>
+                        Thread: <input type="number" id="thread-num" value=0> &nbsp;
+                        Cell: <input type="number" id="cell-num" value=1> &nbsp;
+                        Value <input type="text" id="cell-val"><br>
+                        <div>
+                            <button id="newThread" type="button" name="button" onclick="newThread()">Add Thread</button>
+                        </div>
+                        <!--button onclick="editTape()"> Edit Tape </button-->
+                    </div><br>
+                    <div>
+                        <h3>State Manipulation</h3>
+                        <input type="text" id="add-state-name" placeholder="Name of State">
+                        <button id="add-state-button" onclick="addState()"> Add State </button><br>
+                        <input type="text" id="delete-state-name" placeholder="Name of State">
+                        <button id="delete-state-button" onclick="deleteState()"> Delete State </button><br>
+                    </div><br>
+                    <div>
+                        <h3>Delta Manipulation</h3>
+                        <input type="text" class="small-input" id="add-delta-from"placeholder="From State">
+                        <input type="text" class="small-input" id="add-delta-read" placeholder="Tape Read">
+                        <input type="text" class="small-input" id="add-delta-to" placeholder="To State">
+                        <input type="text" class="small-input" id="add-delta-write" placeholder="Tape Write">
+                        <input type="number" class="small-input" id="add-delta-move" value="1"><br>
+                        <button id="add-delta-button" onclick="addDelta()">Add Delta</button><br>
+                        <input type="text" class="small-input" id="delete-delta-from"placeholder="From State">
+                        <input type="text" class="small-input" id="delete-delta-read" placeholder="Tape Read">
+                        <input type="number" class="small-input" id="delete-delta-idx" value="0"><br>
+                        <button id="delete-delta-button" onclick="deleteDelta()">Delete Delta</button>
+                    </div>
+                </td>
+            </tr>
+        </table>
         <button id="export-tm" type="button" name="button">Export Turing Machine</button><br>
         <textarea id="io-box" name="io" rows="20" cols="80"></textarea>
     </body>

@@ -159,6 +159,13 @@ function graphDeltas(tm) {
         .attr("y", function(d){
             return getDeltaPos(d).y;
         })
+        .on("click", function(d){
+            console.log("Delta Label clicked")
+            console.log(d);
+            d3.select("#delete-delta-from").property("value", d.from);
+            d3.select("#delete-delta-read").property("value", d.read);
+            d3.select("#delete-delta-idx").property("value", d.idx);
+        })
 
     var path = svg.append("g").selectAll("path")
         .data(deltas).enter().append("path")
@@ -458,6 +465,7 @@ function linkArc(d) {
 function dragstarted(d) {
     d3.event.sourceEvent.stopPropagation();
     d3.select(this).classed("dragging", true);
+    d3.select("#delete-state-name").property("value", d.name);
 }
 
 function dragged(d) {
@@ -513,5 +521,53 @@ function deleteThread(d) {
 function resetThread(d) {
     execution.resetThread(d.idx);
     graphThreads(execution);
+    graphActives(execution);
+}
+
+function addState(){
+    var el = document.getElementById("add-state-name");
+    if(!machine.addState(el.value)){
+        alert("Add state failed")
+    }
+    graphStates(machine);
+}
+
+function deleteState(){
+    machine.deleteState(getVal("delete-state-name"))
+    graphDeltas(machine);
+    graphStates(machine);
+    graphActives(execution);
+}
+
+function getVal(elementId){
+    return document.getElementById(elementId).value;
+}
+
+function addDelta(){
+    var state = getVal("add-delta-from"),
+        read = getVal("add-delta-read"),
+        to = getVal("add-delta-to"),
+        write = getVal("add-delta-write"),
+        move = getVal("add-delta-move");
+    if(!machine.addDelta(state, read, to, write, move)){
+        alert("Add Delta Failed");
+        return;
+    }
+    graphDeltas(machine);
+    graphStates(machine);
+    graphActives(execution);
+}
+
+function deleteDelta(){
+    var state = getVal("delete-delta-from"),
+        read = getVal("delete-delta-read"),
+        idx = getVal("delete-delta-idx");
+
+    if(!machine.deleteDelta(state, read, idx)){
+        alert("Delete Delete Failed");
+        return;
+    }
+    graphDeltas(machine);
+    graphStates(machine);
     graphActives(execution);
 }
