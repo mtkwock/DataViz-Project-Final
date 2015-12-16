@@ -505,14 +505,12 @@ function newThread() {
 }
 
 function deleteThread(d) {
-    console.log(d)
     execution.deleteThread(d.idx);
     graphThreads(execution);
     graphActives(execution);
 }
 
 function resetThread(d) {
-    console.log(d)
     execution.resetThread(d.idx);
     graphThreads(execution);
     graphActives(execution);
